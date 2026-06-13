@@ -1,0 +1,810 @@
+{
+ "commander-marshal": {
+  "id": "commander-marshal",
+  "name": "Marshal Buffs Starter Deck",
+  "class": "Commander",
+  "archetype": "Marshal",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Rally",
+    "copies": 3
+   },
+   {
+    "name": "Regroup",
+    "copies": 2
+   },
+   {
+    "name": "Redirect",
+    "copies": 3
+   },
+   {
+    "name": "Inspire",
+    "copies": 2
+   },
+   {
+    "name": "Squire",
+    "copies": 2
+   },
+   {
+    "name": "Bannerman",
+    "copies": 2
+   },
+   {
+    "name": "Battle Cry",
+    "copies": 3
+   },
+   {
+    "name": "Hold the Line",
+    "copies": 2
+   },
+   {
+    "name": "Banner",
+    "copies": 2
+   },
+   {
+    "name": "Formation",
+    "copies": 2
+   },
+   {
+    "name": "War Horn",
+    "copies": 2
+   }
+  ]
+ },
+ "commander-tactician": {
+  "id": "commander-tactician",
+  "name": "Tactician Manipulation Starter Deck",
+  "class": "Commander",
+  "archetype": "Tactician",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Rally",
+    "copies": 3
+   },
+   {
+    "name": "Regroup",
+    "copies": 2
+   },
+   {
+    "name": "Redirect",
+    "copies": 3
+   },
+   {
+    "name": "Inspire",
+    "copies": 2
+   },
+   {
+    "name": "Scout",
+    "copies": 2
+   },
+   {
+    "name": "Sergeant",
+    "copies": 2
+   },
+   {
+    "name": "Press the Attack",
+    "copies": 3
+   },
+   {
+    "name": "Scout Ahead",
+    "copies": 2
+   },
+   {
+    "name": "Double Time",
+    "copies": 2
+   },
+   {
+    "name": "Flank",
+    "copies": 2
+   },
+   {
+    "name": "Anticipate",
+    "copies": 2
+   }
+  ]
+ },
+ "commander-warden": {
+  "id": "commander-warden",
+  "name": "Warden Defense Starter Deck",
+  "class": "Commander",
+  "archetype": "Warden",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Rally",
+    "copies": 3
+   },
+   {
+    "name": "Regroup",
+    "copies": 2
+   },
+   {
+    "name": "Redirect",
+    "copies": 3
+   },
+   {
+    "name": "Inspire",
+    "copies": 2
+   },
+   {
+    "name": "Buckler",
+    "copies": 3
+   },
+   {
+    "name": "Mend",
+    "copies": 3
+   },
+   {
+    "name": "Healing Tower",
+    "copies": 2
+   },
+   {
+    "name": "Barrier",
+    "copies": 2
+   },
+   {
+    "name": "Shield Tower",
+    "copies": 2
+   },
+   {
+    "name": "Restoration",
+    "copies": 2
+   },
+   {
+    "name": "Bastion",
+    "copies": 1
+   }
+  ]
+ },
+ "dps-swarm": {
+  "id": "dps-swarm",
+  "name": "Spider Swarm Starter Deck",
+  "class": "DPS",
+  "archetype": "Swarm",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Scrapper",
+    "copies": 2
+   },
+   {
+    "name": "Brawler",
+    "copies": 2
+   },
+   {
+    "name": "Zap",
+    "copies": 2
+   },
+   {
+    "name": "Strike",
+    "copies": 2
+   },
+   {
+    "name": "Fireball",
+    "copies": 2
+   },
+   {
+    "name": "Hatchling",
+    "copies": 4
+   },
+   {
+    "name": "Web Spinner",
+    "copies": 3
+   },
+   {
+    "name": "Cave Spider",
+    "copies": 3
+   },
+   {
+    "name": "Venomfang",
+    "copies": 2
+   },
+   {
+    "name": "Brood Mother",
+    "copies": 2
+   },
+   {
+    "name": "Tunnel Lurker",
+    "copies": 1
+   }
+  ]
+ },
+ "dps-big": {
+  "id": "dps-big",
+  "name": "Ogre Big Starter Deck",
+  "class": "DPS",
+  "archetype": "Big",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 7
+   },
+   {
+    "name": "Scrapper",
+    "copies": 2
+   },
+   {
+    "name": "Brawler",
+    "copies": 2
+   },
+   {
+    "name": "Zap",
+    "copies": 2
+   },
+   {
+    "name": "Strike",
+    "copies": 2
+   },
+   {
+    "name": "Ogre Whelp",
+    "copies": 2
+   },
+   {
+    "name": "Ogre Thug",
+    "copies": 3
+   },
+   {
+    "name": "Ogre Crusher",
+    "copies": 3
+   },
+   {
+    "name": "Ogre Mauler",
+    "copies": 2
+   },
+   {
+    "name": "Ogre Warlord",
+    "copies": 2
+   },
+   {
+    "name": "Ogre Chieftain",
+    "copies": 2
+   },
+   {
+    "name": "Cave Tyrant",
+    "copies": 1
+   }
+  ]
+ },
+ "dps-undead": {
+  "id": "dps-undead",
+  "name": "Undead Graveyard Starter Deck",
+  "class": "DPS",
+  "archetype": "Undead",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Scrapper",
+    "copies": 2
+   },
+   {
+    "name": "Brawler",
+    "copies": 2
+   },
+   {
+    "name": "Zap",
+    "copies": 2
+   },
+   {
+    "name": "Strike",
+    "copies": 2
+   },
+   {
+    "name": "Fireball",
+    "copies": 2
+   },
+   {
+    "name": "Skeleton",
+    "copies": 4
+   },
+   {
+    "name": "Shambler",
+    "copies": 2
+   },
+   {
+    "name": "Zombie",
+    "copies": 3
+   },
+   {
+    "name": "Ghoul",
+    "copies": 2
+   },
+   {
+    "name": "Grave Wight",
+    "copies": 2
+   },
+   {
+    "name": "Bone Colossus",
+    "copies": 2
+   }
+  ]
+ },
+ "wizard-abjurer": {
+  "id": "wizard-abjurer",
+  "name": "Abjurer Denial Starter Deck",
+  "class": "Wizard",
+  "archetype": "Abjurer",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Counter",
+    "copies": 3
+   },
+   {
+    "name": "Insight",
+    "copies": 3
+   },
+   {
+    "name": "Arcane Bolt",
+    "copies": 2
+   },
+   {
+    "name": "Dispel",
+    "copies": 2
+   },
+   {
+    "name": "Nullify",
+    "copies": 3
+   },
+   {
+    "name": "Spell Shield",
+    "copies": 3
+   },
+   {
+    "name": "Deny",
+    "copies": 3
+   },
+   {
+    "name": "Redirect",
+    "copies": 2
+   },
+   {
+    "name": "Warding Circle",
+    "copies": 2
+   },
+   {
+    "name": "Reflect",
+    "copies": 2
+   }
+  ]
+ },
+ "wizard-enchanter": {
+  "id": "wizard-enchanter",
+  "name": "Enchanter Buffs Starter Deck",
+  "class": "Wizard",
+  "archetype": "Enchanter",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Counter",
+    "copies": 3
+   },
+   {
+    "name": "Insight",
+    "copies": 3
+   },
+   {
+    "name": "Arcane Bolt",
+    "copies": 2
+   },
+   {
+    "name": "Dispel",
+    "copies": 2
+   },
+   {
+    "name": "Quicken",
+    "copies": 3
+   },
+   {
+    "name": "Sharpen",
+    "copies": 3
+   },
+   {
+    "name": "Empower",
+    "copies": 3
+   },
+   {
+    "name": "Venomtip",
+    "copies": 2
+   },
+   {
+    "name": "Lifebound",
+    "copies": 2
+   },
+   {
+    "name": "Trample Hex",
+    "copies": 2
+   }
+  ]
+ },
+ "wizard-illusionist": {
+  "id": "wizard-illusionist",
+  "name": "Illusionist Cloning Starter Deck",
+  "class": "Wizard",
+  "archetype": "Illusionist",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Counter",
+    "copies": 3
+   },
+   {
+    "name": "Insight",
+    "copies": 3
+   },
+   {
+    "name": "Arcane Bolt",
+    "copies": 2
+   },
+   {
+    "name": "Dispel",
+    "copies": 2
+   },
+   {
+    "name": "Mirror Image",
+    "copies": 3
+   },
+   {
+    "name": "Echo",
+    "copies": 3
+   },
+   {
+    "name": "Duplicate",
+    "copies": 3
+   },
+   {
+    "name": "Phantom Double",
+    "copies": 2
+   },
+   {
+    "name": "Split",
+    "copies": 2
+   },
+   {
+    "name": "Mirage Army",
+    "copies": 2
+   }
+  ]
+ },
+ "sorcerer-necromancer": {
+  "id": "sorcerer-necromancer",
+  "name": "Necromancer Resurrection Starter Deck",
+  "class": "Sorcerer",
+  "archetype": "Necromancer",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Grave Peek",
+    "copies": 3
+   },
+   {
+    "name": "Soul Tap",
+    "copies": 3
+   },
+   {
+    "name": "Dark Bargain",
+    "copies": 2
+   },
+   {
+    "name": "Reclaim",
+    "copies": 2
+   },
+   {
+    "name": "Raise Dead",
+    "copies": 3
+   },
+   {
+    "name": "Shallow Grave",
+    "copies": 3
+   },
+   {
+    "name": "Bone Servant",
+    "copies": 2
+   },
+   {
+    "name": "Revive",
+    "copies": 3
+   },
+   {
+    "name": "Gravekeeper",
+    "copies": 2
+   },
+   {
+    "name": "Mass Revival",
+    "copies": 2
+   }
+  ]
+ },
+ "sorcerer-dark-ritualist": {
+  "id": "sorcerer-dark-ritualist",
+  "name": "Ritualist Delayed Payoffs Starter Deck",
+  "class": "Sorcerer",
+  "archetype": "Dark Ritualist",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Grave Peek",
+    "copies": 3
+   },
+   {
+    "name": "Soul Tap",
+    "copies": 3
+   },
+   {
+    "name": "Dark Bargain",
+    "copies": 2
+   },
+   {
+    "name": "Reclaim",
+    "copies": 2
+   },
+   {
+    "name": "Blood Offering",
+    "copies": 3
+   },
+   {
+    "name": "Ritual Candle",
+    "copies": 3
+   },
+   {
+    "name": "Gathering Power",
+    "copies": 3
+   },
+   {
+    "name": "Soul Harvest",
+    "copies": 2
+   },
+   {
+    "name": "Dark Pact",
+    "copies": 2
+   },
+   {
+    "name": "Ritual Circle",
+    "copies": 2
+   }
+  ]
+ },
+ "sorcerer-hexer": {
+  "id": "sorcerer-hexer",
+  "name": "Hexer Debuff Starter Deck",
+  "class": "Sorcerer",
+  "archetype": "Hexer",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Grave Peek",
+    "copies": 3
+   },
+   {
+    "name": "Soul Tap",
+    "copies": 3
+   },
+   {
+    "name": "Dark Bargain",
+    "copies": 2
+   },
+   {
+    "name": "Reclaim",
+    "copies": 2
+   },
+   {
+    "name": "Curse",
+    "copies": 3
+   },
+   {
+    "name": "Weaken",
+    "copies": 3
+   },
+   {
+    "name": "Rot",
+    "copies": 3
+   },
+   {
+    "name": "Blight",
+    "copies": 2
+   },
+   {
+    "name": "Silence",
+    "copies": 2
+   },
+   {
+    "name": "Grave Curse",
+    "copies": 2
+   }
+  ]
+ },
+ "crafter-farmer": {
+  "id": "crafter-farmer",
+  "name": "Farmer Plant Creatures Starter Deck",
+  "class": "Crafter",
+  "archetype": "Farmer",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Energy Shard",
+    "copies": 3
+   },
+   {
+    "name": "Harvest",
+    "copies": 2
+   },
+   {
+    "name": "Minor Trinket",
+    "copies": 3
+   },
+   {
+    "name": "Repair",
+    "copies": 2
+   },
+   {
+    "name": "Sprout",
+    "copies": 3
+   },
+   {
+    "name": "Cornstalk",
+    "copies": 3
+   },
+   {
+    "name": "Thornbush",
+    "copies": 2
+   },
+   {
+    "name": "Sunflower",
+    "copies": 3
+   },
+   {
+    "name": "Harvest Golem",
+    "copies": 2
+   },
+   {
+    "name": "Ancient Oak",
+    "copies": 2
+   }
+  ]
+ },
+ "crafter-blacksmith": {
+  "id": "crafter-blacksmith",
+  "name": "Blacksmith Equipment Starter Deck",
+  "class": "Crafter",
+  "archetype": "Blacksmith",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Energy Shard",
+    "copies": 3
+   },
+   {
+    "name": "Harvest",
+    "copies": 2
+   },
+   {
+    "name": "Minor Trinket",
+    "copies": 3
+   },
+   {
+    "name": "Repair",
+    "copies": 2
+   },
+   {
+    "name": "Shortsword",
+    "copies": 3
+   },
+   {
+    "name": "Leather Armor",
+    "copies": 3
+   },
+   {
+    "name": "Longsword",
+    "copies": 2
+   },
+   {
+    "name": "Chainmail",
+    "copies": 2
+   },
+   {
+    "name": "Spiked Shield",
+    "copies": 2
+   },
+   {
+    "name": "Vampiric Blade",
+    "copies": 2
+   },
+   {
+    "name": "Masterwork Plate",
+    "copies": 1
+   }
+  ]
+ },
+ "crafter-alchemist": {
+  "id": "crafter-alchemist",
+  "name": "Alchemist Consumables Starter Deck",
+  "class": "Crafter",
+  "archetype": "Alchemist",
+  "cards": [
+   {
+    "name": "Basic Land",
+    "copies": 5
+   },
+   {
+    "name": "Energy Shard",
+    "copies": 3
+   },
+   {
+    "name": "Harvest",
+    "copies": 2
+   },
+   {
+    "name": "Minor Trinket",
+    "copies": 3
+   },
+   {
+    "name": "Repair",
+    "copies": 2
+   },
+   {
+    "name": "Attack Potion",
+    "copies": 3
+   },
+   {
+    "name": "Defense Elixir",
+    "copies": 3
+   },
+   {
+    "name": "Healing Potion",
+    "copies": 3
+   },
+   {
+    "name": "Haste Tonic",
+    "copies": 2
+   },
+   {
+    "name": "Giant's Draught",
+    "copies": 2
+   },
+   {
+    "name": "Stoneskin Oil",
+    "copies": 2
+   }
+  ]
+ }
+}
