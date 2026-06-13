@@ -7,10 +7,11 @@ global.FileReader = dom.window.FileReader;
 
 const { store } = await import('../public/js/store.js');
 const { gameView } = await import('../public/js/game.js');
+const fs = await import('node:fs');
+for (const c of JSON.parse(fs.readFileSync('data/cards.json'))) store.cards.set(c.id, c);
 
 // Build a minimal realistic game view (as the server's viewFor would produce for the DM)
 store.code = 'TEST'; store.isDM = true; store.playerId = 'dm';
-store.cards.set('hatchling', { id: 'hatchling', name: 'Hatchling', class: 'DPS', archetype: 'Swarm', set: 'Spiders', rarity: 'common', cost: 1, type: 'creature', attack: 1, health: 1, keywords: [], text: 'None' });
 store.you = { id: 'dm', name: 'DM', isDM: true, class: null, archetype: null, collection: {}, decks: {}, favorites: [], cardArt: {} };
 store.artSelections = {}; store.art = []; store.chat = []; store.lobby = { players: [{ id: 'p1', name: 'Aria' }] };
 store.game = {
@@ -46,6 +47,18 @@ try {
   const view = decksView();
   document.getElementById('app').replaceChildren(view);
   const pool = view.querySelector('.db-cols > .scroll');           // pool scroll container
+  // default sort = cost: hatchling(1) first
+  const firstName = () => view.querySelector('.db-cols > .scroll .gcard .cname').textContent;
+  if (firstName() === 'Hatchling') console.log('✓ Deck pool default sort (cost): Hatchling first');
+  else { ok = false; console.log('✗ default cost sort wrong: ' + firstName()); }
+
+  // change sort dropdown to Name -> Cave Spider should come first
+  const sortSel = [...view.querySelectorAll('.filters select')].find((s) => [...s.options].some((o) => o.textContent === 'Sort: Name'));
+  sortSel.value = 'name'; sortSel.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+  const samePoolAfterSort = view.querySelector('.db-cols > .scroll') === pool;
+  if (firstName() === 'Cave Spider' && samePoolAfterSort) console.log('✓ Sort by Name works and reuses pool node (no scroll reset): ' + firstName());
+  else { ok = false; console.log('✗ name sort failed: first=' + firstName() + ' samePool=' + samePoolAfterSort); }
+
   const firstTile = pool.querySelector('.gcard');
   const before = view.querySelectorAll('.deck-entry').length;
   firstTile.click(); firstTile.click(); firstTile.click();          // add 3 copies

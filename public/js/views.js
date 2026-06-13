@@ -191,11 +191,16 @@ export function collectionView() {
   );
 }
 
+// sorter for {c,n} wrappers (collection); cardSorter for raw cards (deck pool)
 function sorter(key) {
+  const cs = cardSorter(key);
+  return (a, b) => cs(a.c, b.c);
+}
+function cardSorter(key) {
   return (a, b) => {
-    if (key === 'name') return a.c.name.localeCompare(b.c.name);
-    if (key === 'rarity') { const o = ['common', 'uncommon', 'rare', 'legendary']; return o.indexOf(a.c.rarity) - o.indexOf(b.c.rarity); }
-    return (a.c.cost ?? 99) - (b.c.cost ?? 99) || a.c.name.localeCompare(b.c.name);
+    if (key === 'name') return a.name.localeCompare(b.name);
+    if (key === 'rarity') { const o = ['common', 'uncommon', 'rare', 'legendary']; return (o.indexOf(b.rarity) - o.indexOf(a.rarity)) || (a.cost ?? 99) - (b.cost ?? 99) || a.name.localeCompare(b.name); }
+    return (a.cost ?? 99) - (b.cost ?? 99) || a.name.localeCompare(b.name);
   };
 }
 
@@ -246,6 +251,7 @@ function giftModal(c) {
 
 // ---------- DECK BUILDER ----------
 let editingDeck = null; // {id,name,cards:[{cardId,count}]}
+let dbPoolScroll = 0;    // remembered pool scroll position (deck builder)
 export function decksView() {
   const you = store.you;
   if (!editingDeck) {
@@ -255,22 +261,24 @@ export function decksView() {
   const isDM = store.isDM;
   const coll = you.collection || {};
 
-  // pool: owned cards (or full DB for DM), respecting class
-  let pool = isDM ? store.cardList.slice() : Object.keys(coll).map((id) => card(id)).filter(Boolean);
-  if (!isDM && you.class) pool = pool.filter((c) => c.type === 'land' || !c.class || c.class === you.class);
-  pool = pool.filter((c) => {
-    if (colFilter.q && !c.name.toLowerCase().includes(colFilter.q.toLowerCase())) return false;
-    if (colFilter.rarity && c.rarity !== colFilter.rarity) return false;
-    if (colFilter.type && c.type !== colFilter.type) return false;
-    return true;
-  });
-  pool.sort((a, b) => (a.cost ?? 99) - (b.cost ?? 99) || a.name.localeCompare(b.name));
-
   const countIn = (id) => { const e = editingDeck.cards.find((x) => x.cardId === id); return e ? e.count : 0; };
   const owned = (id) => isDM ? 99 : (coll[id] || 0);
 
-  // Pool tiles built once; each carries a live "in deck" badge updated in place
-  // so adding cards never rebuilds (and never resets the scroll of) the pool.
+  // Compute the filtered + sorted pool (honours the sort dropdown).
+  const getPool = () => {
+    let pool = isDM ? store.cardList.slice() : Object.keys(coll).map((id) => card(id)).filter(Boolean);
+    if (!isDM && you.class) pool = pool.filter((c) => c.type === 'land' || !c.class || c.class === you.class);
+    pool = pool.filter((c) => {
+      if (colFilter.q && !c.name.toLowerCase().includes(colFilter.q.toLowerCase()) && !(c.text || '').toLowerCase().includes(colFilter.q.toLowerCase())) return false;
+      if (colFilter.rarity && c.rarity !== colFilter.rarity) return false;
+      if (colFilter.type && c.type !== colFilter.type) return false;
+      return true;
+    });
+    return pool.sort(cardSorter(colFilter.sort));
+  };
+
+  // The pool lives in a persistent scroll container; filtering/sorting/adding
+  // re-render only its grid (not the whole view) and restore scroll position.
   const poolBadges = new Map();
   const updateBadge = (id) => {
     const b = poolBadges.get(id); if (!b) return;
@@ -290,13 +298,22 @@ export function decksView() {
     renderDeckList(); updateBadge(id);
   };
 
-  const poolGrid = h('div', { class: 'grid', style: { gridTemplateColumns: 'repeat(auto-fill,minmax(130px,1fr))' } },
-    ...pool.map((c) => {
-      const tile = cardTile(c, { count: isDM ? null : owned(c.id), onClick: () => addCard(c.id) });
-      const badge = h('div', { class: 'indeck-badge' + (countIn(c.id) ? '' : ' zero') }, 'in deck ×' + countIn(c.id));
-      tile.append(badge); poolBadges.set(c.id, badge);
-      return tile;
-    }));
+  const poolScroll = h('div', { class: 'scroll', onscroll: (e) => { dbPoolScroll = e.target.scrollTop; } });
+  function renderPool() {
+    poolBadges.clear();
+    const grid = h('div', { class: 'grid', style: { gridTemplateColumns: 'repeat(auto-fill,minmax(130px,1fr))' } },
+      ...getPool().map((c) => {
+        const tile = cardTile(c, { count: isDM ? null : owned(c.id), onClick: () => addCard(c.id) });
+        const badge = h('div', { class: 'indeck-badge' + (countIn(c.id) ? '' : ' zero') }, 'in deck ×' + countIn(c.id));
+        tile.append(badge); poolBadges.set(c.id, badge);
+        return tile;
+      }));
+    mount(poolScroll, grid);
+    poolScroll.scrollTop = dbPoolScroll;
+  }
+  renderPool();
+  // restore scroll after the view is attached to the DOM (full re-renders)
+  setTimeout(() => { poolScroll.scrollTop = dbPoolScroll; }, 0);
 
   // ---- right column: static header/controls + a dynamic body we re-render ----
   const nameInput = h('input', { value: editingDeck.name, oninput: (e) => editingDeck.name = e.target.value, style: { marginBottom: '8px' } });
@@ -348,8 +365,8 @@ export function decksView() {
   );
 
   return h('div', { class: 'content' },
-    filterBar(() => render()),
-    h('div', { class: 'db-cols' }, h('div', { class: 'scroll' }, poolGrid), deckList),
+    filterBar(() => renderPool()),
+    h('div', { class: 'db-cols' }, poolScroll, deckList),
     h('div', { class: 'muted', style: { fontSize: '11px', marginTop: '6px' } }, 'Click a card to add a copy (click again for more). Hover for full details; use −/+ in the list to adjust.'),
   );
 }
