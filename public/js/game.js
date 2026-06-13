@@ -1,6 +1,6 @@
 // game.js — in-game board, hand, combat/targeting interaction, side panel.
 import { store, action, card, render } from './store.js';
-import { h, mount, toast, notify, kwIcons, attachHover, openModal } from './ui.js';
+import { h, mount, toast, notify, kwIcons, attachHover, openModal, resolveArt } from './ui.js';
 import { chatPanel } from './views.js';
 import { dmGamePanel, dmEntityModal } from './dm.js';
 
@@ -71,7 +71,9 @@ function battlefield(g, side, isYou) {
 function entityEl(g, e, isYou) {
   const c = e.cardId ? card(e.cardId) : null;
   const targetable = ui.mode && isTargetable(g, e);
-  const el = h('div', { class: 'ent' + (e.tapped ? ' tapped' : '') + (ui.attacker === e.instId ? ' selected' : '') + (targetable ? ' targetable' : '') },
+  const art = e.cardId ? resolveArt(e.cardId, {}, e.owner) : null;
+  const el = h('div', { class: 'ent' + (e.tapped ? ' tapped' : '') + (ui.attacker === e.instId ? ' selected' : '') + (targetable ? ' targetable' : '') + (art ? ' has-art' : '') },
+    art ? h('div', { class: 'ent-art', style: { backgroundImage: `url("${art}")` } }) : null,
     e.shield > 0 ? h('div', { class: 'shield-b' }, e.shield) : null,
     (e.poison && e.poison.length) ? h('div', { class: 'poison-b' }, '☣') : null,
     h('div', { class: 'en' }, e.name),
@@ -137,7 +139,9 @@ function handTray(g, myId, myTurn) {
     const isReaction = /^reaction:/i.test(c.text || '');
     const affordable = (c.cost || 0) <= avail || store.isDM;
     const playable = (myTurn || isReaction || store.isDM) && (affordable || c.type === 'land');
-    const el = h('div', { class: 'hcard' + (playable ? ' playable' : '') },
+    const art = resolveArt(c.id, {});
+    const el = h('div', { class: 'hcard' + (playable ? ' playable' : '') + (art ? ' has-art' : '') },
+      art ? h('div', { class: 'card-art', style: { backgroundImage: `url("${art}")` } }) : null,
       h('div', { class: 'row', style: { justifyContent: 'space-between' } },
         h('span', { class: 'cost' }, c.cost ?? '–'),
         c.attack != null ? h('b', {}, c.attack + '/' + c.health) : h('span', { class: 'pill' }, c.type)),

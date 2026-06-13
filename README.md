@@ -131,6 +131,13 @@ decks, mana curve, auto‑fill lands, import/export ✓ · starter deck on class
 select ✓ · gifting with accept/reject ✓ · in‑game: play cards, target selection, declare
 attacks/targets, reactions, mulligan (≤2), pass turn, view zones ✓.
 
+**Card‑art database** — players upload images from the web UI to a **shared** per‑session
+art database; any player can pick any uploaded art for **their own** cards. Art renders on
+collection tiles, hand cards, hover previews, and on the battle board (each creature uses
+its owner's chosen art). Binary images are served over HTTP (`/api/art/:code/:id`) and kept
+out of the realtime state; selections travel with player export and the bytes travel with
+campaign export/import. Open via **Collection → 🎨 Art Database** or a card's **🎨 Set Art**.
+
 **Session / UI / QOL** — lobby with join code, class/deck select, ready, spectators ✓ ·
 import/export player + full campaign ✓ · in‑game chat + DM whisper (`/w name …`) ✓ ·
 board with stats/keyword icons/equipment/shield/poison badges, HP/mana, turn & phase ✓ ·
@@ -141,9 +148,9 @@ auto‑damage, basic animations ✓.
 **Edge cases** — infinite‑loop / any state stoppable via DM override & undo ✓ ·
 disconnect mid‑session → rejoin via the same browser (state held in memory) ✓.
 
-Items intentionally left to the DM's manual tools (by design): per‑card art uploads
-and a few highly unique one‑off card effects, which are flagged in the log for
-manual resolution.
+Items intentionally left to the DM's manual tools (by design): a few highly unique
+one‑off card effects, which are played onto the board/graveyard normally and flagged
+gold in the log for manual resolution.
 
 ---
 

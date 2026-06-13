@@ -1,4 +1,17 @@
 // ui.js — DOM helpers, card rendering, hover preview, modal + toast.
+import { store } from './store.js';
+
+// Resolve chosen art for a card. ownerId optional (defaults to the viewer);
+// pass opts.artId to override (null = force default art).
+export function resolveArt(cardId, opts = {}, ownerId) {
+  let artId = opts.artId;
+  if (artId === undefined) {
+    const sel = ownerId ? (store.artSelections[ownerId] || {}) : (store.you?.cardArt || {});
+    artId = sel[cardId];
+  }
+  return (artId && store.code) ? `/api/art/${store.code}/${artId}` : null;
+}
+
 export function h(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -40,7 +53,9 @@ export function statLine(c) {
 
 // Compact card tile for grids / collection / deck builder.
 export function cardTile(c, opts = {}) {
-  const tile = h('div', { class: `gcard rarity-${c.rarity}` },
+  const art = resolveArt(c.id, opts, opts.ownerId);
+  const tile = h('div', { class: `gcard rarity-${c.rarity}` + (art ? ' has-art' : '') },
+    art ? h('div', { class: 'card-art', style: { backgroundImage: `url("${art}")` } }) : null,
     opts.count != null ? h('div', { class: 'cnt' }, '×' + opts.count) : null,
     opts.fav ? h('div', { class: 'fav' }, '★') : null,
     h('div', { class: 'cname' }, c.name),
@@ -66,7 +81,9 @@ export function attachHover(node, c) {
 function showPop(c, e) {
   popEl.classList.remove('hidden');
   popEl.innerHTML = '';
+  const art = resolveArt(c.id, {});
   popEl.append(
+    art ? h('div', { class: 'pop-art', style: { backgroundImage: `url("${art}")` } }) : null,
     h('div', { class: 'big-name' }, c.name),
     h('div', { class: 'meta' },
       h('span', { class: `pill cls-${c.class}` }, c.class || 'Neutral'),

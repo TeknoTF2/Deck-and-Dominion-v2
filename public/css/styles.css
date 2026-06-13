@@ -207,3 +207,27 @@ h1,h2,h3 { margin: 0 0 8px; font-weight: 650; }
 .targeting-banner { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #1a1206; padding: 8px 18px; border-radius: 999px; font-weight: 700; z-index: 60; }
 table.tbl { width: 100%; border-collapse: collapse; }
 table.tbl td, table.tbl th { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: left; font-size: 13px; }
+
+/* ===== card art ===== */
+.gcard, .hcard, .ent { overflow: hidden; }
+.card-art, .ent-art {
+  position: absolute; inset: 0; background-size: cover; background-position: center;
+  z-index: 0;
+}
+.gcard.has-art::after, .hcard.has-art::after, .ent.has-art::after {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(11,16,32,.35) 0%, rgba(11,16,32,.78) 62%, rgba(11,16,32,.95) 100%);
+}
+.gcard.has-art > *:not(.card-art), .hcard.has-art > *:not(.card-art), .ent.has-art > *:not(.ent-art) { position: relative; z-index: 2; }
+.ent.has-art .en { text-shadow: 0 1px 3px #000; }
+
+.pop-art { height: 130px; border-radius: 8px; background-size: cover; background-position: center; margin-bottom: 8px; border: 1px solid var(--line); }
+
+/* art database picker */
+.art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 52vh; overflow: auto; }
+.art-tile { position: relative; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--bg2); }
+.art-tile:hover { border-color: var(--accent); }
+.art-tile.sel { border-color: var(--gold); box-shadow: 0 0 8px -2px var(--gold); }
+.art-tile img { width: 100%; height: 92px; object-fit: cover; display: block; }
+.art-name { font-size: 11px; padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.art-del { position: absolute; top: 2px; right: 2px; background: #000b; padding: 1px 6px; }

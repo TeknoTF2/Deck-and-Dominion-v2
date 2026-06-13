@@ -84,6 +84,20 @@ const goodDeck = { id: 'd1', name: 'Test', cards: [{ cardId: 'basic-land', count
 const dr = await act(p1, { type: 'saveDeck', deck: goodDeck });
 assert(!!dr.error, 'undersized deck rejected (validation works): ' + dr.error);
 
+// ---- card art database ----
+const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+const up = await fetch(URL + '/api/art/' + c.code, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Aria Hatchling', by: 'Aria', dataUrl: PNG }) }).then((r) => r.json());
+assert(up.ok && up.id, 'art uploaded over HTTP, id=' + up.id);
+await sleep(60);
+assert((p1._last.art || []).some((a) => a.id === up.id), 'art appears in shared DB (broadcast)');
+const img = await fetch(URL + '/api/art/' + c.code + '/' + up.id);
+assert(img.ok && (img.headers.get('content-type') || '').startsWith('image/'), 'art served as image bytes');
+await act(p1, { type: 'setCardArt', cardId: crInst.cardId, artId: up.id });
+assert(p1._last.you.cardArt[crInst.cardId] === up.id, 'player selected art for their card');
+assert(dm._last.artSelections[j1.playerId][crInst.cardId] === up.id, 'art selection visible to all (board owner art)');
+const exp = await act(dm, { type: 'exportCampaign' });
+assert(exp.data && exp.data.art && exp.data.art[up.id] && exp.data.art[up.id].data, 'campaign export embeds art bytes');
+
 await act(dm, { type: 'declareWinner', side: 'party' });
 assert(G(dm).winner === 'party', 'winner declared');
 

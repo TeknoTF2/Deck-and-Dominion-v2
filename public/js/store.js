@@ -9,6 +9,7 @@ export const store = {
   // session state (from server 'state' events)
   code: null, playerId: null, isDM: false,
   lobby: null, game: null, you: null, gifts: [], chat: [], dmDeck: [], packPreview: [],
+  art: [], artSelections: {},
   // local ui
   view: 'home',          // home | lobby | collection | decks | game | dm
   listeners: [],
@@ -51,6 +52,7 @@ export function connect() {
     store.gifts = s.gifts || []; store.chat = s.chat || [];
     if (s.dmDeck !== undefined) store.dmDeck = s.dmDeck;
     if (s.packPreview !== undefined) store.packPreview = s.packPreview || [];
+    store.art = s.art || []; store.artSelections = s.artSelections || {};
     // auto-route only on transitions (don't yank a player out of Collection/Decks)
     if (store.game && (store.view === 'lobby' || store.view === 'home')) store.view = 'game';
     if (!store.game && store.view === 'game') store.view = 'lobby';

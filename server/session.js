@@ -36,6 +36,8 @@ export class Session {
     this.settings = { difficulty: 'Medium' };
     this.dmDeck = [];       // DM encounter deck: [{cardId,count}]
     this.dmDecksSaved = {}; // saved encounter decks
+    this.art = {};          // artId -> { id, name, by, mime }
+    this.artBuf = {};       // artId -> Buffer (kept out of socket state)
   }
 
   addPlayer({ name, isDM = false }) {
@@ -45,12 +47,37 @@ export class Session {
       class: null, archetype: null,
       collection: {}, decks: {}, activeDeckId: null,
       ready: false, spectator: false, connected: true, socketId: null,
-      favorites: [],
+      favorites: [], cardArt: {},   // cardId -> artId (this player's chosen art)
     };
     this.players[id] = player;
     if (isDM && !this.dmId) this.dmId = id;
     if (!this.hostId) this.hostId = id;
     return player;
+  }
+
+  // ---- shared art database ----
+  addArt({ name, by, mime, buffer }) {
+    if (!buffer || !/^image\//.test(mime || '')) return { error: 'Not an image.' };
+    if (buffer.length > 3 * 1024 * 1024) return { error: 'Image too large (max 3 MB).' };
+    const id = 'art' + Math.random().toString(36).slice(2, 9);
+    this.art[id] = { id, name: String(name || 'art').slice(0, 40), by: by || '', mime };
+    this.artBuf[id] = buffer;
+    return { ok: true, id };
+  }
+  artListPublic() { return Object.values(this.art); }
+  getArt(id) { return this.artBuf[id] ? { meta: this.art[id], buf: this.artBuf[id] } : null; }
+  deleteArt(id) { delete this.art[id]; delete this.artBuf[id]; for (const p of Object.values(this.players)) for (const [cid, a] of Object.entries(p.cardArt || {})) if (a === id) delete p.cardArt[cid]; }
+  setCardArt(pid, cardId, artId) {
+    const p = this.players[pid];
+    if (!p) return { error: 'No player.' };
+    p.cardArt = p.cardArt || {};
+    if (artId && this.art[artId]) p.cardArt[cardId] = artId; else delete p.cardArt[cardId];
+    return { ok: true };
+  }
+  artSelections() {
+    const out = {};
+    for (const p of Object.values(this.players)) out[p.id] = p.cardArt || {};
+    return out;
   }
 
   removePlayer(id) { delete this.players[id]; }
@@ -132,7 +159,7 @@ export class Session {
   exportPlayer(id) {
     const p = this.players[id];
     if (!p) return null;
-    return { kind: 'player', name: p.name, class: p.class, archetype: p.archetype, collection: p.collection, decks: p.decks, favorites: p.favorites };
+    return { kind: 'player', name: p.name, class: p.class, archetype: p.archetype, collection: p.collection, decks: p.decks, favorites: p.favorites, cardArt: p.cardArt || {} };
   }
   importPlayer(id, data) {
     const p = this.players[id];
@@ -142,12 +169,15 @@ export class Session {
     if (data.class) p.class = data.class;
     if (data.archetype) p.archetype = data.archetype;
     if (data.favorites) p.favorites = data.favorites;
+    if (data.cardArt) p.cardArt = data.cardArt;
     return { ok: true };
   }
   exportCampaign() {
     return {
       kind: 'campaign', code: this.code, settings: this.settings,
       dmDeck: this.dmDeck, dmDecksSaved: this.dmDecksSaved,
+      art: Object.fromEntries(Object.entries(this.art).map(([id, m]) =>
+        [id, { ...m, data: this.artBuf[id] ? `data:${m.mime};base64,${this.artBuf[id].toString('base64')}` : null }])),
       players: Object.fromEntries(Object.entries(this.players).map(([k, p]) => [k, this.exportPlayer(k)])),
     };
   }
@@ -156,6 +186,12 @@ export class Session {
     if (data.settings) this.settings = data.settings;
     if (data.dmDeck) this.dmDeck = data.dmDeck;
     if (data.dmDecksSaved) this.dmDecksSaved = data.dmDecksSaved;
+    if (data.art) {
+      for (const [id, m] of Object.entries(data.art)) {
+        this.art[id] = { id, name: m.name, by: m.by, mime: m.mime };
+        if (m.data) { const b = m.data.split(','); this.artBuf[id] = Buffer.from(b[1] || '', 'base64'); }
+      }
+    }
     if (data.players) {
       for (const [k, pd] of Object.entries(data.players)) {
         const existing = Object.values(this.players).find((x) => x.name === pd.name && !x.isDM);

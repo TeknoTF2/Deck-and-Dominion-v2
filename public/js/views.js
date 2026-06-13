@@ -2,6 +2,7 @@
 import { store, action, applySession, card, render } from './store.js';
 import { h, mount, cardTile, toast, notify, openModal, clear } from './ui.js';
 import { renderDmDeck } from './dm.js';
+import { openArtPicker } from './art.js';
 
 export function homeView() {
   const name = h('input', { placeholder: 'Your name', value: localStorage.getItem('dd_name') || '' });
@@ -173,6 +174,7 @@ export function collectionView() {
       h('div', {}, h('div', { class: 'kpi' }, totalCards), h('div', { class: 'muted' }, 'cards owned')),
       h('div', {}, h('div', { class: 'kpi' }, entries.length), h('div', { class: 'muted' }, 'unique')),
       ...['common', 'uncommon', 'rare', 'legendary'].map((r) => h('div', {}, h('div', { class: 'kpi', style: { color: `var(--${r})` } }, byRarity[r] || 0), h('div', { class: 'muted' }, r))),
+      h('button', { class: 'right', onclick: () => openArtPicker() }, '🎨 Art Database'),
     ),
     filterBar(() => render()),
     entries.length ? grid : h('div', { class: 'muted center', style: { padding: '40px' } }, 'No cards yet. Choose a class to receive your starter collection.'),
@@ -216,6 +218,7 @@ export function cardDetailModal(c) {
       (c.keywords && c.keywords.length) ? h('div', { class: 'muted' }, 'Keywords: ' + c.keywords.join(', ')) : null,
       h('div', { class: 'row', style: { marginTop: '12px' } },
         h('button', { onclick: () => { action({ type: 'setFavorite', cardId: c.id, fav: !isFav }); } }, isFav ? '★ Unfavorite' : '☆ Favorite'),
+        h('button', { onclick: () => openArtPicker(c.id) }, '🎨 Set Art'),
         !store.isDM ? h('button', { onclick: () => giftModal(c) }, '🎁 Gift this card') : null,
       ),
     );

@@ -25,15 +25,39 @@ app.get('/api/starters', (req, res) => res.json(getStarterDecks()));
 app.get('/api/meta', (req, res) => res.json({ classes: CLASSES, archetypes: ARCHETYPES, difficulties: DIFFICULTY_HP, tierWeights: TIER_WEIGHTS }));
 app.get('/healthz', (req, res) => res.json({ ok: true, sessions: manager.sessions.size }));
 
+// ---- shared card-art database (upload + serve) ----
+app.post('/api/art/:code', (req, res) => {
+  const s = manager.get(req.params.code);
+  if (!s) return res.status(404).json({ error: 'Session not found.' });
+  const { name, by, dataUrl } = req.body || {};
+  const m = /^data:(image\/[\w.+-]+);base64,(.*)$/.exec(dataUrl || '');
+  if (!m) return res.status(400).json({ error: 'Expected an image data URL.' });
+  const r = s.addArt({ name, by, mime: m[1], buffer: Buffer.from(m[2], 'base64') });
+  if (r.error) return res.status(400).json(r);
+  broadcast(s);
+  res.json({ ok: true, id: r.id, url: `/api/art/${s.code}/${r.id}` });
+});
+app.get('/api/art/:code/:id', (req, res) => {
+  const s = manager.get(req.params.code);
+  const a = s && s.getArt(req.params.id);
+  if (!a) return res.status(404).end();
+  res.set('Content-Type', a.meta.mime);
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.end(a.buf);
+});
+
 // ---- broadcast helpers ----
 function youView(session, p) {
   return {
     id: p.id, name: p.name, isDM: p.isDM, class: p.class, archetype: p.archetype,
     collection: p.collection, decks: p.decks, activeDeckId: p.activeDeckId,
     favorites: p.favorites || [], ready: p.ready, spectator: p.spectator,
+    cardArt: p.cardArt || {},
   };
 }
 function broadcast(session) {
+  const art = session.artListPublic();
+  const artSelections = session.artSelections();
   for (const p of Object.values(session.players)) {
     if (!p.socketId) continue;
     const sock = io.sockets.sockets.get(p.socketId);
@@ -46,6 +70,7 @@ function broadcast(session) {
       chat: session.chat.filter((c) => !c.whisperTo || c.whisperTo === p.id || c.from === p.id || p.isDM).slice(-100),
       dmDeck: p.isDM ? session.dmDeck : undefined,
       packPreview: p.isDM ? session._packPreview : undefined,
+      art, artSelections,
     });
   }
 }
@@ -164,6 +189,8 @@ function handleAction(socket, msg) {
     case 'deleteDeck': return done(session.deleteDeck(player.id, msg.deckId));
     case 'setActiveDeck': return done(session.setActiveDeck(player.id, msg.deckId));
     case 'setFavorite': session.setFavorite(player.id, msg.cardId, msg.fav); return done();
+    case 'setCardArt': return done(session.setCardArt(player.id, msg.cardId, msg.artId));
+    case 'deleteArt': session.deleteArt(msg.artId); return done();
     case 'sendGift': return done(session.sendGift(player.id, msg.toId, msg.cardId));
     case 'respondGift': return done(session.respondGift(msg.giftId, msg.accept));
     case 'exportPlayer': return { ok: true, data: session.exportPlayer(player.id) };
