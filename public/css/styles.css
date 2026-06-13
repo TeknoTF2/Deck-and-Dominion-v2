@@ -104,6 +104,8 @@ h1,h2,h3 { margin: 0 0 8px; font-weight: 650; }
 .gcard .cost { background: #2a3450; border: 1px solid var(--accent); border-radius: 50%; width: 20px; height: 20px; display: grid; place-items: center; font-weight: 700; }
 .gcard .stats { margin-left: auto; font-weight: 700; }
 .gcard .cnt { position: absolute; top: 6px; right: 6px; background: #000a; border-radius: 6px; padding: 1px 6px; font-size: 11px; }
+.indeck-badge { position: absolute; bottom: 6px; left: 6px; z-index: 3; background: var(--good); color: #06140d; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 6px; box-shadow: var(--elev1); }
+.indeck-badge.zero { display: none; }
 .gcard.rarity-common { border-left: 3px solid var(--common); }
 .gcard.rarity-uncommon { border-left: 3px solid var(--uncommon); }
 .gcard.rarity-rare { border-left: 3px solid var(--rare); }

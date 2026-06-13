@@ -1,6 +1,6 @@
 // views.js — home, lobby, collection, deck builder.
 import { store, action, applySession, card, render } from './store.js';
-import { h, mount, cardTile, toast, notify, openModal, clear } from './ui.js';
+import { h, mount, cardTile, toast, notify, openModal, clear, attachHover } from './ui.js';
 import { renderDmDeck } from './dm.js';
 import { openArtPicker } from './art.js';
 
@@ -268,38 +268,71 @@ export function decksView() {
 
   const countIn = (id) => { const e = editingDeck.cards.find((x) => x.cardId === id); return e ? e.count : 0; };
   const owned = (id) => isDM ? 99 : (coll[id] || 0);
+
+  // Pool tiles built once; each carries a live "in deck" badge updated in place
+  // so adding cards never rebuilds (and never resets the scroll of) the pool.
+  const poolBadges = new Map();
+  const updateBadge = (id) => {
+    const b = poolBadges.get(id); if (!b) return;
+    const n = countIn(id); b.textContent = 'in deck ×' + n; b.classList.toggle('zero', n === 0);
+  };
   const addCard = (id) => {
     const e = editingDeck.cards.find((x) => x.cardId === id);
     const total = editingDeck.cards.reduce((s, x) => s + x.count, 0);
     if (total >= 60) return toast('Deck is at 60 cards (max).', 'err');
-    if (e) { if (e.count >= owned(id)) return toast('You only own ' + owned(id), 'err'); e.count++; }
+    if (e) { if (e.count >= owned(id)) return toast('You only own ' + owned(id) + ' copies.', 'err'); e.count++; }
     else editingDeck.cards.push({ cardId: id, count: 1 });
-    render();
+    renderDeckList(); updateBadge(id);
   };
-  const removeCard = (id) => { const e = editingDeck.cards.find((x) => x.cardId === id); if (e) { e.count--; if (e.count <= 0) editingDeck.cards = editingDeck.cards.filter((x) => x.cardId !== id); } render(); };
+  const removeCard = (id) => {
+    const e = editingDeck.cards.find((x) => x.cardId === id);
+    if (e) { e.count--; if (e.count <= 0) editingDeck.cards = editingDeck.cards.filter((x) => x.cardId !== id); }
+    renderDeckList(); updateBadge(id);
+  };
 
   const poolGrid = h('div', { class: 'grid', style: { gridTemplateColumns: 'repeat(auto-fill,minmax(130px,1fr))' } },
-    ...pool.map((c) => cardTile(c, { count: isDM ? null : owned(c.id), onClick: () => addCard(c.id) })));
+    ...pool.map((c) => {
+      const tile = cardTile(c, { count: isDM ? null : owned(c.id), onClick: () => addCard(c.id) });
+      const badge = h('div', { class: 'indeck-badge' + (countIn(c.id) ? '' : ' zero') }, 'in deck ×' + countIn(c.id));
+      tile.append(badge); poolBadges.set(c.id, badge);
+      return tile;
+    }));
 
-  const total = editingDeck.cards.reduce((s, e) => s + e.count, 0);
-  const lands = editingDeck.cards.filter((e) => card(e.cardId)?.type === 'land').reduce((s, e) => s + e.count, 0);
-  const sorted = editingDeck.cards.map((e) => ({ e, c: card(e.cardId) })).filter((x) => x.c).sort((a, b) => (a.c.cost ?? 99) - (b.c.cost ?? 99) || a.c.name.localeCompare(b.c.name));
-
-  const deckList = h('div', { class: 'decklist' },
-    h('input', { value: editingDeck.name, oninput: (e) => editingDeck.name = e.target.value, style: { marginBottom: '8px' } }),
-    h('div', { class: 'row', style: { marginBottom: '6px' } },
-      h('span', { class: 'pill', style: { color: total >= 30 && total <= 60 ? 'var(--good)' : 'var(--bad)' } }, total + ' / 30–60'),
-      h('span', { class: 'pill' }, lands + ' lands'),
-    ),
-    manaCurve(editingDeck),
-    h('div', { class: 'scroll grow', style: { marginTop: '14px' } }, ...sorted.map(({ e, c }) =>
-      h('div', { class: 'deck-entry' },
+  // ---- right column: static header/controls + a dynamic body we re-render ----
+  const nameInput = h('input', { value: editingDeck.name, oninput: (e) => editingDeck.name = e.target.value, style: { marginBottom: '8px' } });
+  const deckBody = h('div', { class: 'decklist-body grow', style: { display: 'flex', flexDirection: 'column', minHeight: 0 } });
+  function renderDeckList() {
+    const total = editingDeck.cards.reduce((s, e) => s + e.count, 0);
+    const lands = editingDeck.cards.filter((e) => card(e.cardId)?.type === 'land').reduce((s, e) => s + e.count, 0);
+    const sorted = editingDeck.cards.map((e) => ({ e, c: card(e.cardId) })).filter((x) => x.c)
+      .sort((a, b) => (a.c.cost ?? 99) - (b.c.cost ?? 99) || a.c.name.localeCompare(b.c.name));
+    const prevScroll = deckBody.querySelector('.scroll')?.scrollTop || 0;
+    const listEl = h('div', { class: 'scroll grow', style: { marginTop: '14px' } }, ...sorted.map(({ e, c }) => {
+      const row = h('div', { class: 'deck-entry' },
         h('span', { class: 'cost', style: { width: '18px', height: '18px', fontSize: '11px' } }, c.cost ?? '–'),
-        h('span', { class: 'grow', onmouseenter: null }, c.name),
+        h('span', { class: 'grow' }, c.name),
         h('span', { class: 'pill' }, '×' + e.count),
         h('button', { class: 'sm ghost', onclick: () => removeCard(c.id) }, '−'),
         h('button', { class: 'sm ghost', onclick: () => addCard(c.id) }, '+'),
-      ))),
+      );
+      attachHover(row, c);
+      return row;
+    }));
+    mount(deckBody,
+      h('div', { class: 'row', style: { marginBottom: '6px' } },
+        h('span', { class: 'pill', style: { color: total >= 30 && total <= 60 ? 'var(--good)' : 'var(--bad)' } }, total + ' / 30–60'),
+        h('span', { class: 'pill' }, lands + ' lands'),
+      ),
+      manaCurve(editingDeck),
+      listEl,
+    );
+    listEl.scrollTop = prevScroll;
+  }
+  renderDeckList();
+
+  const deckList = h('div', { class: 'decklist' },
+    nameInput,
+    deckBody,
     h('div', { class: 'row', style: { marginTop: '8px' } },
       h('button', { class: 'primary grow', onclick: saveDeck }, '💾 Save'),
       h('button', { class: 'sm', onclick: () => { editingDeck = null; render(); } }, 'Reset'),
@@ -317,6 +350,7 @@ export function decksView() {
   return h('div', { class: 'content' },
     filterBar(() => render()),
     h('div', { class: 'db-cols' }, h('div', { class: 'scroll' }, poolGrid), deckList),
+    h('div', { class: 'muted', style: { fontSize: '11px', marginTop: '6px' } }, 'Click a card to add a copy (click again for more). Hover for full details; use −/+ in the list to adjust.'),
   );
 }
 
