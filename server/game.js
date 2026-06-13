@@ -545,21 +545,22 @@ export class GameState {
     this.manaOf(side).burst = 0;
     // reset attacks for the side
     for (const e of this.s.board) if (e.side === side) { e.attacksThisTurn = 0; if (e.cannotAttackTurns > 0) e.cannotAttackTurns--; }
-    if (this.s.activeId !== 'dm') this.s.taken.push(this.s.activeId);
-
-    if (nextId === 'dm' || (this.s.activeId !== 'dm' && this.s.taken.length >= this.s.players.length)) {
-      this.beginTurn('dm');
-      return { ok: true };
-    }
+    // The DM finishing their turn always begins a NEW ROUND with a player.
+    // (Checked first so a DM-chosen nextId of 'dm' doesn't restart the DM turn.)
     if (this.s.activeId === 'dm') {
-      // new round
       this.s.round += 1;
       this.s.taken = [];
-      const first = nextId && nextId !== 'dm' ? nextId : this.s.order[0];
+      const first = (nextId && nextId !== 'dm') ? nextId : this.s.order[0];
       this.beginTurn(first);
       return { ok: true };
     }
-    // next player chosen
+
+    // A player finished their turn.
+    this.s.taken.push(this.s.activeId);
+    if (nextId === 'dm' || this.s.taken.length >= this.s.players.length) {
+      this.beginTurn('dm');
+      return { ok: true };
+    }
     let next = nextId;
     if (!next || this.s.taken.includes(next) || next === 'dm') {
       next = this.s.order.find((p) => !this.s.taken.includes(p));
