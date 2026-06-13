@@ -116,19 +116,29 @@ function readyPanel(you) {
 function dmLobbyPanel(lobby) {
   const diffSel = h('select', { onchange: (e) => action({ type: 'setDifficulty', difficulty: e.target.value }) },
     ...Object.keys(store.meta.difficulties).map((d) => h('option', { value: d, selected: lobby.settings.difficulty === d }, `${d} (${store.meta.difficulties[d]} HP/player)`)));
+  // readiness: who can actually battle
+  const party = lobby.players.filter((p) => !p.isDM && !p.spectator);
+  const noDeck = party.filter((p) => !p.class);
+  const canStart = party.length > 0 && noDeck.length === 0;
   return h('div', { class: 'section col' },
     h('h3', {}, '🛡 DM Controls'),
     h('div', { class: 'row' }, h('label', {}, 'Difficulty'), diffSel),
     h('button', { onclick: openDmDeckModal }, '🃏 Build Encounter Deck (' + store.dmDeck.reduce((s, e) => s + e.count, 0) + ' cards)'),
-    h('button', { class: 'primary', onclick: async () => {
+    // explicit readiness feedback so the DM knows why Start may be blocked
+    h('div', { class: 'muted', style: { fontSize: '12px' } },
+      party.length === 0 ? '⚠ No party players yet — at least one non-spectator must join.' :
+      noDeck.length ? `⚠ Waiting on: ${noDeck.map((p) => p.name).join(', ')} (must pick a class/archetype).` :
+      `✓ ${party.length} player(s) ready to battle.`),
+    h('button', { class: 'primary', disabled: !canStart, onclick: async () => {
       const r = await action({ type: 'startGame' });
-      notify(r, r.ok ? 'Encounter started!' : null);
+      if (r.error) { openModal('Cannot start encounter', (b) => b.append(h('p', {}, r.error), h('p', { class: 'muted' }, 'Every non-spectator player must choose a class & archetype (which grants a starter deck) before the battle can begin.'))); return; }
+      store.view = 'game'; render(); toast('Encounter started!', 'ok');
     } }, '▶ Start Encounter'),
     h('div', { class: 'row wrap' },
       h('button', { class: 'sm', onclick: exportCampaign }, 'Export Campaign'),
       h('button', { class: 'sm', onclick: importCampaign }, 'Import Campaign'),
     ),
-    h('div', { class: 'muted', style: { fontSize: '12px' } }, `Party HP will be ${lobby.players.filter(p=>!p.isDM&&!p.spectator).length * 8}. DM HP scales with difficulty × party size.`),
+    h('div', { class: 'muted', style: { fontSize: '12px' } }, `Party HP will be ${party.length * 8}. DM HP scales with difficulty × party size. A filler encounter deck is auto-added at battle start if yours is under 20 cards.`),
   );
 }
 

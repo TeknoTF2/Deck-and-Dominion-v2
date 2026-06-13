@@ -176,7 +176,11 @@ function onPlayHand(g, inst, c, playable) {
 function turnPanel(g, myId, myTurn) {
   const phases = ['draw', 'mana', 'play', 'attack', 'resolution'];
   const activeName = g.activeId === 'dm' ? 'DM' : (g.players.find((p) => p.id === g.activeId)?.name || '?');
-  const nextPick = h('select', {}, ...g.players.filter((p) => !g.taken.includes(p.id) && p.id !== g.activeId).map((p) => h('option', { value: p.id }, '→ ' + p.name)), h('option', { value: 'dm' }, '→ DM'));
+  // When the DM is active, "End Turn" begins a new round — let them pick who leads it.
+  // Otherwise, offer remaining players this round, then the DM.
+  const nextPick = g.activeId === 'dm'
+    ? h('select', {}, ...g.players.map((p) => h('option', { value: p.id }, '→ ' + p.name + ' (new round)')))
+    : h('select', {}, ...g.players.filter((p) => !g.taken.includes(p.id) && p.id !== g.activeId).map((p) => h('option', { value: p.id }, '→ ' + p.name)), h('option', { value: 'dm' }, '→ DM'));
   return h('div', { class: 'section col' },
     h('div', { class: 'row' }, h('b', {}, 'Round ' + g.round), h('span', { class: 'pill right' }, myTurn ? 'Your turn' : activeName + "'s turn")),
     h('div', { class: 'phasebar' }, ...phases.map((p) => h('span', { class: 'phase-step' + (g.phase === p ? ' on' : '') }, p))),
