@@ -18,12 +18,12 @@ export function gameView() {
 
   if (g.winner) return endScreen(g);
 
-  const dmLaneEl = dmLane(g, store.isDM);
-  const partyLanesEl = h('div', { class: 'party-lanes' },
-    ...g.players.map((p) => playerLane(g, p, !store.isDM && store.playerId === p.id)));
   const main = h('div', { class: 'board-shell' },
     faceRow(g, enemySide, true),
-    h('div', { class: 'zones' }, ...(store.isDM ? [partyLanesEl, dmLaneEl] : [dmLaneEl, partyLanesEl])),
+    h('div', { class: 'zones' },
+      battlefield(g, 'dm', youSide === 'dm'),
+      battlefield(g, 'party', youSide === 'party'),
+    ),
     faceRow(g, youSide, false),
   );
 
@@ -42,90 +42,30 @@ export function gameView() {
 }
 function resetThenRender() { resetUi(); render(); }
 
-function manaOrbs(mana) {
-  const total = mana.available + mana.burst;
-  const pips = [];
-  const shown = Math.min(total, 12);
-  for (let i = 0; i < shown; i++) pips.push(h('span', { class: 'mana-orb' + (i >= mana.available ? ' burst' : '') }));
-  return h('div', { class: 'mana-orbs' },
-    ...pips,
-    total > 12 ? h('span', { class: 'mana-more' }, '+' + (total - 12)) : null,
-    h('span', { class: 'mana-num' }, '◆ ' + mana.available + (mana.burst ? ' +' + mana.burst : '')),
-  );
-}
-
 function faceRow(g, side, isEnemy) {
   const isDM = side === 'dm';
   const hp = isDM ? g.dmHP : g.partyHP, max = isDM ? g.dmHPMax : g.partyHPMax;
   const shield = isDM ? g.dmShield : g.partyShield;
   const mana = isDM ? g.dmMana : g.mana;
   const showMana = (side === 'dm') === store.isDM || store.isDM; // you see your mana; DM sees both
-  const pct = Math.max(0, Math.min(100, hp / max * 100));
-  const faceEl = h('div', { class: 'face ' + side + (isEnemy ? ' enemy' : ' yours'), onclick: () => onFaceClick(side) },
-    h('div', { class: 'face-emblem' }, isDM ? '🐉' : '🛡'),
-    h('div', { class: 'face-main' },
-      h('div', { class: 'face-title' }, isDM ? 'Dungeon Master' : 'The Party',
-        shield > 0 ? h('span', { class: 'shield-chip' }, '🛡 ' + shield) : null),
-      h('div', { class: 'hpbar' }, h('div', { class: 'hpfill', style: { width: pct + '%' } })),
-    ),
-    h('div', { class: 'face-hp' }, h('span', { class: 'hp-now' }, hp), h('span', { class: 'hp-max' }, '/ ' + max)),
-    showMana ? h('div', { class: 'face-mana' }, manaOrbs(mana)) : null,
-    (ui.mode && isEnemy) ? h('span', { class: 'attack-face-hint' }, '⚔ attack') : null,
+  const faceEl = h('div', { class: 'face ' + side, onclick: () => onFaceClick(side) },
+    h('b', {}, isDM ? '🐉 Dungeon Master' : '🛡 The Party'),
+    h('div', { class: 'hpbar' }, h('div', { style: { width: Math.max(0, hp / max * 100) + '%' } })),
+    h('span', { class: 'stat-chip' }, '❤ ' + hp + ' / ' + max),
+    shield > 0 ? h('span', { class: 'stat-chip', style: { color: 'var(--accent)' } }, '🛡 ' + shield) : null,
+    showMana ? h('span', { class: 'stat-chip mana-chip' }, '◆ ' + mana.available + (mana.burst ? ' (+' + mana.burst + ' burst)' : '')) : null,
+    (ui.mode && isEnemy) ? h('span', { class: 'pill targetable', style: { background: 'var(--good)' } }, 'attack face ▶') : null,
   );
   if (ui.mode && isEnemy) faceEl.classList.add('targetable');
   return faceEl;
 }
 
-// A compact strip of this owner's lands, shown as tappable mana-source pips.
-function landStrip(g, ents, canTap) {
-  const lands = ents.filter((e) => e.type === 'land');
-  if (!lands.length) return null;
-  return h('div', { class: 'land-strip', title: 'Lands (mana sources)' },
-    h('span', { class: 'land-ico' }, '⛰'),
-    ...lands.map((l) => h('span', {
-      class: 'land-pip' + (l.tapped ? ' tapped' : ''),
-      title: l.tapped ? 'Tapped' : (canTap ? 'Tap for mana' : 'Untapped'),
-      onclick: (ev) => { ev.stopPropagation(); if (canTap && !l.tapped) action({ type: 'tapLand', instId: l.instId }); },
-    }, '◆')),
-  );
-}
-
-// One player's personal section on the shared battlefield.
-function playerLane(g, p, isMe) {
-  const ents = g.board.filter((e) => e.side === 'party' && e.owner === p.id);
-  const creatures = ents.filter((e) => e.type !== 'land');
-  const active = g.activeId === p.id;
-  return h('div', { class: 'player-lane' + (active ? ' active' : '') + (isMe ? ' you' : '') },
-    h('div', { class: 'lane-head' },
-      h('span', { class: 'class-tag cls-' + p.class }, p.class ? p.class[0] : '?'),
-      h('b', {}, p.name),
-      isMe ? h('span', { class: 'pill' }, 'you') : null,
-      active ? h('span', { class: 'pill', style: { color: 'var(--gold)' } }, '▶ active') : null,
-      h('span', { class: 'lane-hand muted' }, '🂠 ' + p.handCount),
-    ),
-    landStrip(g, ents, isMe || store.isDM),
-    h('div', { class: 'lane-cards' },
-      creatures.length ? creatures.map((e) => entityEl(g, e, isMe)) : h('span', { class: 'lane-empty' }, 'no creatures')),
-  );
-}
-
-// The DM's own section.
-function dmLane(g, isMe) {
-  const ents = g.board.filter((e) => e.side === 'dm');
-  const creatures = ents.filter((e) => e.type !== 'land');
-  const active = g.activeId === 'dm';
-  return h('div', { class: 'player-lane dm-lane' + (active ? ' active' : '') + (isMe ? ' you' : '') },
-    h('div', { class: 'lane-head' },
-      h('span', { class: 'lane-emblem' }, '🐉'),
-      h('b', {}, 'Dungeon Master'),
-      isMe ? h('span', { class: 'pill' }, 'you') : null,
-      active ? h('span', { class: 'pill', style: { color: 'var(--gold)' } }, '▶ active') : null,
-      g.dm ? h('span', { class: 'lane-hand muted' }, '🂠 ' + g.dm.handCount) : null,
-    ),
-    landStrip(g, ents, isMe),
-    h('div', { class: 'lane-cards' },
-      creatures.length ? creatures.map((e) => entityEl(g, e, isMe)) : h('span', { class: 'lane-empty' }, 'no creatures')),
-  );
+function battlefield(g, side, isYou) {
+  const ents = g.board.filter((e) => e.side === side);
+  const lane = h('div', { class: 'battlefield ' + side + '-side' },
+    ents.length ? null : h('span', { class: 'muted' }, side === 'dm' ? 'DM has no creatures' : 'No party creatures'),
+    ...ents.map((e) => entityEl(g, e, isYou)));
+  return h('div', {}, h('div', { class: 'zone-label' }, (side === 'dm' ? 'DM Battlefield' : 'Party Battlefield') + (isYou ? ' (you)' : '')), lane);
 }
 
 function entityEl(g, e, isYou) {
@@ -236,11 +176,7 @@ function onPlayHand(g, inst, c, playable) {
 function turnPanel(g, myId, myTurn) {
   const phases = ['draw', 'mana', 'play', 'attack', 'resolution'];
   const activeName = g.activeId === 'dm' ? 'DM' : (g.players.find((p) => p.id === g.activeId)?.name || '?');
-  // When the DM is active, "End Turn" begins a new round — let them pick who leads it.
-  // Otherwise, offer remaining players this round, then the DM.
-  const nextPick = g.activeId === 'dm'
-    ? h('select', {}, ...g.players.map((p) => h('option', { value: p.id }, '→ ' + p.name + ' (new round)')))
-    : h('select', {}, ...g.players.filter((p) => !g.taken.includes(p.id) && p.id !== g.activeId).map((p) => h('option', { value: p.id }, '→ ' + p.name)), h('option', { value: 'dm' }, '→ DM'));
+  const nextPick = h('select', {}, ...g.players.filter((p) => !g.taken.includes(p.id) && p.id !== g.activeId).map((p) => h('option', { value: p.id }, '→ ' + p.name)), h('option', { value: 'dm' }, '→ DM'));
   return h('div', { class: 'section col' },
     h('div', { class: 'row' }, h('b', {}, 'Round ' + g.round), h('span', { class: 'pill right' }, myTurn ? 'Your turn' : activeName + "'s turn")),
     h('div', { class: 'phasebar' }, ...phases.map((p) => h('span', { class: 'phase-step' + (g.phase === p ? ' on' : '') }, p))),

@@ -222,7 +222,7 @@ export class Session {
     // DM deck
     let dmIds = [];
     for (const e of this.dmDeck) for (let i = 0; i < e.count; i++) dmIds.push(e.cardId);
-    if (dmIds.length < 20) dmIds = dmIds.concat(this._autoDmDeck(60 - dmIds.length));
+    if (dmIds.length < 20) dmIds = dmIds.concat(this._autoDmDeck(40 - dmIds.length));
     this.game = new GameState({ players: playerSetups, dmDeckCardIds: dmIds, partyHP, dmHP, difficulty: this.settings.difficulty });
     this.status = 'active';
     return { ok: true };
