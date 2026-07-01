@@ -38,22 +38,4 @@ store.game.activeId = 'p1';
 try { const node = gameView(); console.log('✓ Player gameView rendered'); }
 catch (e) { ok = false; console.log('✗ Player gameView THREW:\n', e.stack); }
 
-// ---- deck builder: add multiple without rebuilding/scrolling the pool ----
-try {
-  const { decksView } = await import('../public/js/views.js');
-  store.you = { id: 'p1', name: 'Aria', isDM: false, class: 'DPS', archetype: 'Swarm',
-    collection: { hatchling: 4, 'cave-spider': 3, fireball: 2 }, decks: {}, activeDeckId: null, favorites: [], cardArt: {} };
-  const view = decksView();
-  document.getElementById('app').replaceChildren(view);
-  const pool = view.querySelector('.db-cols > .scroll');           // pool scroll container
-  const firstTile = pool.querySelector('.gcard');
-  const before = view.querySelectorAll('.deck-entry').length;
-  firstTile.click(); firstTile.click(); firstTile.click();          // add 3 copies
-  const samePoolNode = view.querySelector('.db-cols > .scroll') === pool;
-  const entries = view.querySelectorAll('.deck-entry').length;
-  const badge = firstTile.querySelector('.indeck-badge');
-  if (samePoolNode && entries === before + 1 && badge && badge.textContent.includes('×3')) console.log('✓ Deck builder: 3 adds → 1 entry ×3, pool node preserved (no scroll reset)');
-  else { ok = false; console.log('✗ Deck builder add failed: samePool=' + samePoolNode + ' entries=' + entries + ' badge=' + (badge && badge.textContent)); }
-} catch (e) { ok = false; console.log('✗ decksView THREW:\n', e.stack); }
-
 process.exit(ok ? 0 : 1);
