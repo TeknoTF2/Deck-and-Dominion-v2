@@ -66,18 +66,8 @@ function route() {
 }
 
 function draw() {
-  try {
-    mount(app, route());
-    giftPrompts();
-  } catch (e) {
-    console.error('Render error:', e);
-    mount(app, h('div', { class: 'content' },
-      h('h2', {}, 'Something went wrong rendering the screen'),
-      h('pre', { class: 'muted', style: { whiteSpace: 'pre-wrap' } }, String(e && e.stack || e)),
-      h('button', { class: 'primary', onclick: () => { store.view = store.game ? 'game' : 'lobby'; draw(); } }, 'Retry'),
-      h('button', { onclick: () => location.reload() }, 'Reload'),
-    ));
-  }
+  mount(app, route());
+  giftPrompts();
 }
 
 onChange(draw);

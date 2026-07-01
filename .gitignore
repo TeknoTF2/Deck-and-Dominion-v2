@@ -4,4 +4,3 @@ npm-debug.log*
 .DS_Store
 *.local
 /tmp/
-preview_board.html

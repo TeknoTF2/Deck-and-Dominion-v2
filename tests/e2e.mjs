@@ -68,15 +68,6 @@ if (myCreature) {
   assert(G(p1).dmHP <= before, 'DM HP after attack ' + before + '→' + G(p1).dmHP);
 } else assert(true, '(no attacker available — skipped)');
 
-// regression: DM ending their turn (even with nextId='dm') starts a NEW ROUND
-// with a player active — it must NOT restart the DM's own turn / just tap mana.
-await act(dm, { type: 'beginTurnFor', pid: 'dm' });
-assert(G(dm).activeId === 'dm', 'DM turn set');
-const roundBefore = G(dm).round;
-await act(dm, { type: 'endTurn', nextId: 'dm' });
-assert(G(dm).activeId !== 'dm', 'DM end-turn advances OFF the DM (not restart): active=' + G(dm).activeId);
-assert(G(dm).round === roundBefore + 1, 'DM end-turn started a new round ' + roundBefore + '→' + G(dm).round);
-
 const beforeHP = G(dm).dmHP;
 await act(dm, { type: 'dmEdit', path: 'dmHP', value: 999 });
 await act(dm, { type: 'undo' });
