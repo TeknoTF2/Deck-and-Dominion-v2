@@ -1,0 +1,21 @@
+{
+  "name": "deck-and-dominion",
+  "version": "1.0.0",
+  "description": "Interactive card game engine for the Deck Builder TTRPG",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test/smoke.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.61.1",
+    "socket.io-client": "^4.8.3"
+  }
+}

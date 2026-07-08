@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck &amp; Dominion</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+</head>
+<body>
+<div id="app">
+  <!-- HOME -->
+  <div id="screen-home" class="screen">
+    <div class="home-box">
+      <h1>Deck <span class="amp">&amp;</span> Dominion</h1>
+      <p class="tagline">The cooperative deck-builder TTRPG — cards are real, decks are treasure.</p>
+      <div class="home-forms">
+        <div class="panel">
+          <h2>Join a session</h2>
+          <input id="join-name" placeholder="Your name" maxlength="20">
+          <input id="join-code" placeholder="Session code (e.g. ABCD)" maxlength="4" style="text-transform:uppercase">
+          <label class="chk"><input type="checkbox" id="join-spec"> Join as spectator</label>
+          <button id="btn-join" class="primary">Join</button>
+        </div>
+        <div class="panel">
+          <h2>Host a session (DM)</h2>
+          <input id="host-name" placeholder="DM name" maxlength="20">
+          <button id="btn-host" class="primary">Create session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="screen-main" class="screen hidden">
+    <header id="topbar">
+      <div class="brand">🃏 D&amp;D<span class="code" id="hdr-code"></span></div>
+      <nav id="tabs">
+        <button data-tab="board" class="tab active">Board</button>
+        <button data-tab="collection" class="tab">Collection</button>
+        <button data-tab="decks" class="tab">Decks</button>
+        <button data-tab="dm" class="tab hidden" id="tab-dm">DM Panel</button>
+      </nav>
+      <div id="hdr-status"></div>
+    </header>
+    <div id="tab-content">
+      <div id="view-board" class="view"></div>
+      <div id="view-collection" class="view hidden"></div>
+      <div id="view-decks" class="view hidden"></div>
+      <div id="view-dm" class="view hidden"></div>
+    </div>
+    <aside id="sidebar">
+      <div class="side-tabs">
+        <button data-side="log" class="stab active">Log</button>
+        <button data-side="chat" class="stab">Chat<span id="chat-dot" class="dot hidden"></span></button>
+        <button data-side="piles" class="stab">Piles</button>
+        <button data-side="party" class="stab">Party</button>
+      </div>
+      <div id="side-log" class="side-view">
+        <div class="log-tools"><input id="log-search" placeholder="Search log…"><button id="log-export" title="Export log">⬇</button></div>
+        <div id="log-list"></div>
+      </div>
+      <div id="side-chat" class="side-view hidden">
+        <div id="chat-list"></div>
+        <div class="chat-input">
+          <select id="chat-to"><option value="">Everyone</option></select>
+          <input id="chat-msg" placeholder="Message…" maxlength="500">
+          <button id="chat-send">➤</button>
+        </div>
+      </div>
+      <div id="side-piles" class="side-view hidden"></div>
+      <div id="side-party" class="side-view hidden"></div>
+    </aside>
+  </div>
+</div>
+
+<!-- floating layers -->
+<div id="hovercard" class="hidden"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div id="prompt-bar" class="hidden"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
